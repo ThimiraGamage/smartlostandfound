@@ -1,6 +1,6 @@
 <?php
 
-$conn = new mysqli("localhost", "root", "", "smartlostfound", 3307);
+$conn = new mysqli("localhost", "root", "", "smartlostfound", 3306);
 
 if($conn->connect_error){
     die("Connection Failed : " . $conn->connect_error);
@@ -77,47 +77,49 @@ if(isset($_POST['register'])){
             (
                 full_name,
                 email,
-                phone_number,
                 password
             ) 
             
             VALUES
             (
-                ?, ?, ?, ?
+                ?, ?, ?
             )";
 
             $stmt = $conn->prepare($sql);
 
-            $stmt->bind_param
-            (
-                "ssss", 
-                $full_name, 
-                $email,
-                $phone_number,
-                $hashed_password
-            );
-
-            if($stmt->execute()){
-
-                // Get the newly created user ID
-                $user_id = $conn->insert_id;
-
-                // Start session and set user data
-                session_start();
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['full_name'] = $full_name;
-                $_SESSION['email'] = $email;
-
-                header("Location: dashboard.php");
-                exit();
-
+            if(!$stmt){
+                $message = "Error preparing statement: " . $conn->error;
             }else{
+                $stmt->bind_param
+                (
+                    "sss", 
+                    $full_name, 
+                    $email,
+                    $hashed_password
+                );
 
-                $message = "Error : " . $conn->error;
+                if($stmt->execute()){
 
+                    // Get the newly created user ID
+                    $user_id = $conn->insert_id;
+
+                    // Start session and set user data
+                    session_start();
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['full_name'] = $full_name;
+                    $_SESSION['email'] = $email;
+
+                    header("Location: dashboard.php");
+                    exit();
+
+                }else{
+
+                    $message = "Error : " . $conn->error;
+
+                }
+
+                $stmt->close();
             }
-
-            $stmt->close();
         }
     }
 }
@@ -128,15 +130,12 @@ if(isset($_POST['register'])){
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Register</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/register.css">
-
 </head>
 
 <body>

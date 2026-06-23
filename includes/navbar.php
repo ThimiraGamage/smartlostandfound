@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 
 $is_logged_in = isset($_SESSION['user_id']);
 $full_name = $_SESSION['full_name'] ?? '';
@@ -15,187 +15,496 @@ if (!empty($full_name)) {
 <header class="navbar">
     <div class="nav-container">
         <div class="logo-section">
-
-            <h2><a href="dashboard.php" style="text-decoration: none; color: inherit;">Smart Lost & Found</a></h2>
+            <span class="material-symbols-outlined logo-icon">location_searching</span>
+            <h2>
+                <a href="dashboard.php" class="logo-link">Smart Lost & Found</a>
+            </h2>
         </div>
 
-        <nav class="nav-links">
-            <a href="dashboard.php">Home</a>
-            <a href="search.php">Search</a>
+        <button class="hamburger-menu" id="hamburger-toggle" aria-label="Toggle Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <nav class="nav-links" id="nav-links">
+            <a href="dashboard.php" class="nav-item-link">Home</a>
+            <a href="search.php" class="nav-item-link">Search</a>
 
             <?php if ($is_logged_in): ?>
                 <a href="upload-item.php" class="report-btn">
-                    Report Item
+                    <span class="material-symbols-outlined">add_circle</span> Report Item
                 </a>
                 <div class="user-menu">
+                    <div class="user-avatar">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </div>
                     <span class="user-name"><?php echo htmlspecialchars($first_name); ?></span>
-                    <a href="logout.php" class="logout-btn">Logout</a>
+                    <a href="logout.php" class="logout-btn">
+                        <span class="material-symbols-outlined">logout</span> Logout
+                    </a>
                 </div>
             <?php else: ?>
-                <a href="login.php" class="login-btn">
-                    Login
-                </a>
-                <a href="register.php" class="register-btn">
-                    Register
-                </a>
+                <a href="login.php" class="login-btn">Login</a>
+                <a href="register.php" class="register-btn">Register</a>
             <?php endif; ?>
+
+            <!-- Sliding underline indicator for standard tabs -->
+            <div class="nav-indicator" id="nav-indicator"></div>
         </nav>
     </div>
 </header>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-200..200">
-
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-200..200');
+
+    /* Scoped base reset to ensure navbar layout is perfect on all pages */
+    .navbar,
+    .navbar * {
+        box-sizing: border-box !important;
+        font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+    }
+
+    /* Force material icons to render as symbols and not fall back to text */
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .logo-section h2 {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Navbar Core Variables & Styling */
+    :root {
+        --navy-blue: #0d6efd;
+        /* Vibrant Blue requested by user */
+        --navy-hover: #0056cc;
+        /* Hover Blue */
+        --primary-blue: #0d6efd;
+        --secondary-blue: #0b5ed7;
+        --text-dark: #2b3674;
+        --text-muted: #5e6c84;
+        --bg-white: #ffffff;
+        --border-color: rgba(226, 232, 240, 0.8);
+    }
 
     .navbar {
-        background-color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background-color: var(--bg-white);
+        border-bottom: 1px solid var(--border-color);
         position: sticky;
         top: 0;
         z-index: 1000;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 5px 0;
     }
 
+    /* Scroll Shrink State via JS */
+    .navbar.scrolled {
+        padding: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom-color: transparent;
+    }
+
+    /* Full size container width (90% width) */
     .nav-container {
-        max-width: 1200px;
+        width: 90%;
+        max-width: 100%;
         margin: 0 auto;
-        padding: 0 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 70px;
+        height: 75px;
+        transition: height 0.4s ease;
     }
 
+    .navbar.scrolled .nav-container {
+        height: 65px;
+    }
+
+    /* Logo Section Design */
     .logo-section {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
+        gap: 10px;
     }
 
     .logo-icon {
         font-size: 32px;
-        color: #2196F3;
+        color: var(--navy-blue);
+        background: rgba(13, 110, 253, 0.1);
+        padding: 6px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
     }
 
-    .logo-section h2 {
-        margin: 0;
-        font-size: 24px;
+    .logo-section:hover .logo-icon {
+        transform: rotate(-15deg) scale(1.1);
     }
 
+    .logo-link {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-weight: 800;
+        font-size: 23px;
+        letter-spacing: -0.5px;
+        color: var(--navy-blue);
+    }
+
+    /* Navigation Links with Relative Positioning for JS indicator */
     .nav-links {
+        position: relative;
         display: flex;
         gap: 25px;
         align-items: center;
         list-style: none;
         margin: 0;
         padding: 0;
+        transition: all 0.3s ease;
     }
 
-    .nav-links a {
+    .nav-item-link {
         text-decoration: none;
-        color: #333;
-        font-weight: 500;
+        color: var(--text-muted);
+        font-weight: 600;
         font-size: 15px;
+        padding: 8px 12px;
+        border-radius: 8px;
         transition: color 0.3s ease;
     }
 
-    .nav-links a:hover {
-        color: #2196F3;
+    .nav-item-link:hover,
+    .nav-item-link.active {
+        color: var(--navy-blue);
     }
 
-    .login-btn {
-        padding: 8px 16px;
-        background-color: #2196F3;
-        color: white;
+    /* Sliding JS Underline Indicator */
+    .nav-indicator {
+        position: absolute;
+        bottom: -5px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--navy-blue), #2b3674);
         border-radius: 4px;
+        transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Button Styling */
+    .login-btn {
+        padding: 10px 22px;
+        background-color: transparent;
+        color: var(--navy-blue);
+        border: 1.5px solid var(--navy-blue);
+        border-radius: 10px;
         text-decoration: none;
-        font-weight: 500;
-        cursor: pointer;
+        font-weight: 600;
         font-size: 14px;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .login-btn:hover {
-        background-color: #1976D2;
+        background-color: var(--navy-blue);
+        color: white;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
     }
 
     .register-btn {
-        padding: 8px 16px;
-        background-color: #4CAF50;
+        padding: 10px 22px;
+        background-color: var(--navy-blue);
         color: white;
-        border-radius: 4px;
+        border-radius: 10px;
         text-decoration: none;
-        font-weight: 500;
-        cursor: pointer;
+        font-weight: 600;
         font-size: 14px;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .register-btn:hover {
-        background-color: #45a049;
+        background-color: var(--navy-hover);
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        transform: translateY(-1px);
     }
 
-    .user-menu {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-left: 10px;
-    }
-
-    .user-name {
-        font-weight: 500;
-        color: #333;
-        font-size: 14px;
-    }
-
-    .logout-btn {
-        padding: 6px 12px;
-        background-color: #ff6b6b;
-        color: white;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .logout-btn:hover {
-        background-color: #ff5252;
-    }
-
+    /* Report Item Button (Navy Blue Background) */
     .report-btn {
-        padding: 8px 16px;
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 4px;
+        padding: 10px 20px;
+        background-color: var(--navy-blue);
+        color: #ffffff;
+        /* Solid white text on idle */
+        border-radius: 10px;
         text-decoration: none;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .report-btn .material-symbols-outlined {
+        font-size: 18px;
     }
 
     .report-btn:hover {
-        background-color: #45a049;
+        background-color: var(--navy-hover);
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        transform: translateY(-1px);
+        color: #ffffff !important;
+        /* Solid white text on hover */
     }
 
+    /* User Profile Info on Navbar */
+    .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-left: 10px;
+        border-left: 1.5px solid var(--border-color);
+    }
+
+    .user-avatar {
+        color: var(--navy-blue);
+        display: flex;
+        align-items: center;
+    }
+
+    .user-avatar .material-symbols-outlined {
+        font-size: 28px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 14px;
+    }
+
+    /* Logout Button - Red text, background red + white text on hover */
+    .logout-btn {
+        padding: 8px 14px;
+        background-color: transparent;
+        color: #dc3545;
+        border: 1.5px solid #dc3545;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .logout-btn .material-symbols-outlined {
+        font-size: 16px;
+    }
+
+    .logout-btn:hover {
+        background-color: #dc3545;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+    }
+
+    /* Hamburger Menu Button */
+    .hamburger-menu {
+        display: none;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 24px;
+        height: 18px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1010;
+    }
+
+    .hamburger-menu .bar {
+        width: 100%;
+        height: 2.5px;
+        background-color: var(--text-dark);
+        border-radius: 5px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Mobile Hamburger Animation */
+    .hamburger-menu.active .bar:nth-child(1) {
+        transform: translateY(7.5px) rotate(45deg);
+    }
+
+    .hamburger-menu.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger-menu.active .bar:nth-child(3) {
+        transform: translateY(-7.5px) rotate(-45deg);
+    }
+
+    /* Responsive Queries */
     @media (max-width: 768px) {
-        .nav-container {
-            flex-direction: column;
-            height: auto;
-            padding: 15px 20px;
-            gap: 15px;
+        .hamburger-menu {
+            display: flex;
         }
 
         .nav-links {
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
+            position: fixed;
+            top: 75px;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: calc(100vh - 75px);
+            background-color: var(--bg-white);
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 30px 24px;
+            gap: 20px;
+            box-shadow: -10px 10px 30px rgba(0, 0, 0, 0.05);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
         }
 
-        .logo-section h2 {
-            font-size: 20px;
+        .navbar.scrolled .nav-links {
+            top: 65px;
+            height: calc(100vh - 65px);
+        }
+
+        .nav-links.open {
+            right: 0;
+        }
+
+        .nav-item-link {
+            width: 100%;
+            padding: 12px 16px;
+        }
+
+        .user-menu {
+            width: 100%;
+            border-left: none;
+            border-top: 1px solid var(--border-color);
+            padding-left: 0;
+            padding-top: 20px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .login-btn,
+        .register-btn,
+        .report-btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .nav-indicator {
+            display: none;
+            /* Hide sliding underline on mobile */
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Sticky scroll shrink logic
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 40) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile Menu Toggle logic
+        const hamburger = document.getElementById('hamburger-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        if (hamburger && navLinks) {
+            hamburger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hamburger.classList.toggle('active');
+                navLinks.classList.toggle('open');
+            });
+
+            // Close mobile menu if clicked outside
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('open');
+                }
+            });
+        }
+
+        // Sliding Underline Tab Indicator logic
+        const links = document.querySelectorAll('.nav-links .nav-item-link');
+        const indicator = document.getElementById('nav-indicator');
+
+        function updateIndicator(element) {
+            if (element && indicator) {
+                if (window.innerWidth > 768) {
+                    indicator.style.width = `${element.offsetWidth}px`;
+                    indicator.style.left = `${element.offsetLeft}px`;
+                    indicator.style.opacity = '1';
+                }
+            } else if (indicator) {
+                indicator.style.opacity = '0';
+            }
+        }
+
+        // Get current page filename
+        let currentPath = window.location.pathname.split('/').pop();
+        if (currentPath === '') {
+            currentPath = 'dashboard.php';
+        }
+
+        let activeLink = null;
+
+        links.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            if (currentPath === linkHref || (currentPath === 'index.php' && linkHref === 'dashboard.php')) {
+                link.classList.add('active');
+                activeLink = link;
+            }
+
+            link.addEventListener('mouseenter', (e) => {
+                updateIndicator(e.target);
+            });
+
+            link.addEventListener('mouseleave', () => {
+                updateIndicator(activeLink);
+            });
+        });
+
+        // Initialize indicator position
+        setTimeout(() => {
+            updateIndicator(activeLink);
+        }, 100);
+
+        // Recalculate on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768 && indicator) {
+                indicator.style.opacity = '0';
+            } else {
+                updateIndicator(activeLink);
+            }
+        });
+    });
+</script>

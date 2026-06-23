@@ -2,7 +2,7 @@
 
 session_start();
 
-$conn = new mysqli("localhost", "root", "", "smartlostfound", 3307);
+$conn = new mysqli("localhost", "root", "", "smartlostfound", 3306);
 
 if($conn->connect_error)
 {
