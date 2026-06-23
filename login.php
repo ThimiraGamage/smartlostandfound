@@ -136,30 +136,7 @@ if(isset($_POST['login']))
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/login.css">
 
-    <style>
-
-        .message
-        {
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .success
-        {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .error
-        {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-    </style>
+ 
 
 </head>
 
@@ -309,64 +286,7 @@ if(isset($_POST['login']))
         </div>
     </div>
 
-    <!-- MODAL STYLES -->
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .modal-content h2 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .modal-content p {
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .modal-content .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-    </style>
+    
 
     <!-- MODAL JAVASCRIPT -->
     <script>

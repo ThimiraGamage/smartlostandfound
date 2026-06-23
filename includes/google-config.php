@@ -8,8 +8,8 @@ require_once __DIR__ . '/env-loader.php';
 
 // Google Client Configuration
 // Use environment variables for sensitive credentials
-define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: 'YOUR_CLIENT_ID_HERE');
-define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET') ?: 'YOUR_CLIENT_SECRET_HERE');
+define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID'));
+define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET'));
 define('GOOGLE_REDIRECT_URI', getenv('GOOGLE_REDIRECT_URI') ?: 'http://localhost/smartlostandfound/login.php');
 
 /**

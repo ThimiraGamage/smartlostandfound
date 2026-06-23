@@ -92,26 +92,25 @@ body{
 
 /* BUTTON */
 
-.register-btnnn{
-    width:100%;
-
-    padding:15px;
-
-    background:#0d6efd  ;
-
-    color:white;
-
-    border:none;
-
-    border-radius:10px;
-
-    font-size:16px;
-
-    cursor:pointer;
+.register-btn {
+    width: 100%;
+    padding: 15px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-.register-btn:hover{
-    background:#0056cc;
+.register-btn:hover {
+    background: #0056cc;
+}
+
+.register-btn:active {
+    transform: scale(0.98);
 }
 
 /* LOGIN LINK */
