@@ -82,43 +82,45 @@ if (isset($_POST['register'])) {
             (
                 full_name,
                 email,
-                phone_number,
                 password
             )
             VALUES
             (
-                ?, ?, ?, ?
+                ?, ?, ?
             )";
 
             $stmt = mysqli_prepare($conn, $sql);
 
-            mysqli_stmt_bind_param(
-                $stmt,
-                "ssss",
-                $full_name,
-                $email,
-                $phone_number,
-                $hashed_password
-            );
+            if(!$stmt){
+                $message = "Error preparing statement: " . $conn->error;
+            }else{
+                $stmt->bind_param
+                (
+                    "sss", 
+                    $full_name, 
+                    $email,
+                    $hashed_password
+                );
 
-            if (mysqli_stmt_execute($stmt)) {
+                if($stmt->execute()){
 
-                /* GET NEW USER ID */
+                    // Get the newly created user ID
+                    $user_id = $conn->insert_id;
 
-                $user_id = mysqli_insert_id($conn);
+                    // Start session and set user data
+                    session_start();
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['full_name'] = $full_name;
+                    $_SESSION['email'] = $email;
 
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['full_name'] = $full_name;
-                $_SESSION['email'] = $email;
+                    header("Location: dashboard.php");
+                    exit();
 
-                header("Location: dashboard.php");
-                exit();
+                }else{
 
-            } else {
+                    $message = "Error : " . $conn->error;
 
-                $message = "Error: " . mysqli_error($conn);
-
-            }
+                }
 
             mysqli_stmt_close($stmt);
         }
@@ -131,15 +133,12 @@ if (isset($_POST['register'])) {
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Register</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/register.css">
-
 </head>
 
 <body>

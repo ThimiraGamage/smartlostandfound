@@ -3,6 +3,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Load environment variables from .env file
+require_once __DIR__ . '/env-loader.php';
+
 // Google Client Configuration
 // Use environment variables for sensitive credentials
 define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: 'YOUR_CLIENT_ID_HERE');
