@@ -5,7 +5,7 @@ $sql = "SELECT * FROM items ORDER BY item_id DESC LIMIT 3";
 
 $result = mysqli_query($conn, $sql);
 ?>
-    
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,7 +14,7 @@ $result = mysqli_query($conn, $sql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Lost & Found</title>
 
-    <link rel="stylesheet" type="text/css" href="assets/css/dashboard.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/dashboard.css?v=1.3" />
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
@@ -25,7 +25,7 @@ $result = mysqli_query($conn, $sql);
 <body>
 
     <?php include 'includes/navbar.php'; ?>
-    
+
     <?php
     $is_logged_in = isset($_SESSION['user_id']);
     ?>
@@ -134,86 +134,79 @@ $result = mysqli_query($conn, $sql);
 
             <?php
 
-            if($result->num_rows > 0)
-            {
-                while($row = $result->fetch_assoc())
-                {
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
 
                     $badgeClass = "";
 
-                    if($row['item_type'] == "Lost")
-                    {
+                    if ($row['item_type'] == "Lost") {
                         $badgeClass = "lost-badge";
-                    }
-                    else
-                    {
+                    } else {
                         $badgeClass = "found-badge";
                     }
 
-            ?>
+                    ?>
 
-            <!-- CARD -->
+                    <!-- CARD -->
 
-            <div class="item-card">
+                    <div class="item-card">
 
-                <div class="item-image">
+                        <div class="item-image">
 
-                    <img 
-                        src="<?php echo $row['image']; ?>"
-                        alt="Item Image"
-                    />
+                            <img src="<?php echo $row['image']; ?>" alt="Item Image" />
 
-                    <span class="<?php echo $badgeClass; ?>">
+                            <span class="<?php echo $badgeClass; ?>">
 
-                        <?php echo $row['item_type']; ?>
+                                <?php echo $row['item_type']; ?>
 
-                    </span>
+                            </span>
 
-                </div>
+                        </div>
 
-                <div class="item-content">
+                        <div class="item-content">
 
-                    <h3>
+                            <h3>
 
-                        <?php echo $row['item_name']; ?>
+                                <?php echo $row['item_name']; ?>
 
-                    </h3>
+                            </h3>
 
-                    <p>
+                            <p>
 
-                        Location: <?php echo $row['location']; ?>
+                                Location:
+                                <?php echo $row['location']; ?>
 
-                    </p>
+                            </p>
 
-                    <p>
+                            <p>
 
-                        Category: <?php echo $row['category']; ?>
+                                Category:
+                                <?php echo $row['category']; ?>
 
-                    </p>
+                            </p>
 
-                    <div class="item-actions">
-                        <?php if($row['item_type'] == "Lost"): ?>
-                            <a href="report-found.php?item_id=<?php echo $row['item_id']; ?>" class="action-btn report-found-btn">
-                                Report Found
-                            </a>
-                        <?php else: ?>
-                            <a href="claim-item.php?item_id=<?php echo $row['item_id']; ?>">
+                            <div class="item-actions">
+                                <?php if ($row['item_type'] == "Lost"): ?>
+                                    <a href="report-found.php?item_id=<?php echo $row['item_id']; ?>"
+                                        class="action-btn report-found-btn">
+                                        Report Found
+                                    </a>
+                                <?php else: ?>
+                                    <a href="claim-item.php?item_id=<?php echo $row['item_id']; ?>">
 
-                                Claim Item
-                            </a>
-                        <?php endif; ?>
+                                        Claim Item
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                </div>
-
-            </div>
-
-            <?php
+                    <?php
 
                 }
-            }
-            else
-            {
+            } else {
                 echo "<p>No Items Found</p>";
             }
 
@@ -221,6 +214,38 @@ $result = mysqli_query($conn, $sql);
 
         </div>
 
+    </section>
+
+    <!-- CAMPUS MAP SECTION -->
+    <section class="map-section">
+        <div class="map-container-box">
+            <h2>Campus Location Map</h2>
+            <p>Use the interactive map below to locate blocks and halls. Drag the map to view different campus areas, or click toggle to show the full map and legend.</p>
+            <div class="map-wrapper" id="map-wrapper">
+                <div class="map-controls">
+                    <button class="map-control-btn" id="zoom-in" title="Zoom In">
+                        <span class="material-symbols-outlined">zoom_in</span>
+                    </button>
+                    <button class="map-control-btn" id="zoom-out" title="Zoom Out">
+                        <span class="material-symbols-outlined">zoom_out</span>
+                    </button>
+                    <button class="map-control-btn" id="reset-map" title="Reset View">
+                        <span class="material-symbols-outlined">restart_alt</span>
+                    </button>
+                    <button class="map-toggle-btn" id="toggle-map-view">
+                        <span class="material-symbols-outlined">legend_toggle</span> Show Full Map & Legend
+                    </button>
+                </div>
+                <div class="map-image-container">
+                    <img 
+                        src="assets/images/uni-map.jpg" 
+                        alt="University of Kelaniya Site Map" 
+                        id="map-img"
+                        class="map-image-cropped" 
+                    />
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- INFO SECTION -->
@@ -234,33 +259,30 @@ $result = mysqli_query($conn, $sql);
             <div class="steps">
 
                 <div class="step">
-
-                    <div class="step-number">1</div>
-
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <span class="material-symbols-outlined step-icon">publish</span>
+                    </div>
                     <h3>Report Item</h3>
-
-                    <p>Upload lost or found item details.</p>
-
+                    <p>Upload lost or found item details, category, description, and images to our database.</p>
                 </div>
 
                 <div class="step">
-
-                    <div class="step-number">2</div>
-
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <span class="material-symbols-outlined step-icon">compare_arrows</span>
+                    </div>
                     <h3>Smart Match</h3>
-
-                    <p>System suggests matching items.</p>
-
+                    <p>Our smart matching system filters and matches items by location and category.</p>
                 </div>
 
                 <div class="step">
-
-                    <div class="step-number">3</div>
-
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <span class="material-symbols-outlined step-icon">handshake</span>
+                    </div>
                     <h3>Recover Item</h3>
-
-                    <p>Claim and recover safely.</p>
-
+                    <p>Directly contact the owner or finder and safely recover your lost belongings.</p>
                 </div>
 
             </div>
@@ -270,14 +292,162 @@ $result = mysqli_query($conn, $sql);
     </section>
 
     <!-- FOOTER -->
+    <?php include 'includes/footer.php'; ?>
 
-    <footer class="footer">
+    <!-- MAP INTERACTIVITY SCRIPT -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapWrapper = document.getElementById('map-wrapper');
+        const mapImg = document.getElementById('map-img');
+        const toggleBtn = document.getElementById('toggle-map-view');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetBtn = document.getElementById('reset-map');
 
-        <h3>Smart Lost & Found</h3>
+        let isFullView = false;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let panX = 0, panY = 0;
+        let zoom = 1.0;
 
-        <p>© 2026 University Services</p>
+        // Apply translation and zoom transform to the image
+        function applyTransform(withTransition = false) {
+            if (withTransition) {
+                mapImg.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            } else {
+                mapImg.style.transition = 'none';
+            }
+            mapImg.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
+        }
 
-    </footer>
+        // Toggle view
+        toggleBtn.addEventListener('click', function() {
+            isFullView = !isFullView;
+            if (isFullView) {
+                mapWrapper.classList.add('full-view');
+                toggleBtn.innerHTML = '<span class="material-symbols-outlined">legend_toggle</span> Show Cropped Map';
+                mapImg.style.transform = '';
+                mapImg.style.transition = '';
+            } else {
+                mapWrapper.classList.remove('full-view');
+                toggleBtn.innerHTML = '<span class="material-symbols-outlined">legend_toggle</span> Show Full Map & Legend';
+                // Reset values
+                panX = 0;
+                panY = 0;
+                zoom = 1.0;
+                applyTransform(true);
+            }
+        });
+
+        // Zoom Controls
+        zoomInBtn.addEventListener('click', function() {
+            if (isFullView) return;
+            zoom = Math.min(zoom + 0.25, 3.0);
+            applyTransform(true);
+        });
+
+        zoomOutBtn.addEventListener('click', function() {
+            if (isFullView) return;
+            zoom = Math.max(zoom - 0.25, 0.75);
+            applyTransform(true);
+        });
+
+        resetBtn.addEventListener('click', function() {
+            if (isFullView) return;
+            panX = 0;
+            panY = 0;
+            zoom = 1.0;
+            applyTransform(true);
+        });
+
+        // Drag handling (Mouse)
+        mapImg.addEventListener('mousedown', function(e) {
+            if (isFullView) return;
+            isDragging = true;
+            mapImg.style.cursor = 'grabbing';
+            
+            // Disable transitions during dragging for real-time responsiveness
+            mapImg.style.transition = 'none';
+
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isDragging || isFullView) return;
+            
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+
+            // Apply boundaries to prevent dragging the map completely away
+            const wrapperRect = mapWrapper.getBoundingClientRect();
+            const imgRect = mapImg.getBoundingClientRect();
+
+            // Calculate limits: don't let map go completely out of the wrapper
+            const maxPanX = imgRect.width * 0.6;
+            const maxPanY = imgRect.height * 0.6;
+
+            panX = Math.min(Math.max(panX, -maxPanX), maxPanX);
+            panY = Math.min(Math.max(panY, -maxPanY), maxPanY);
+
+            applyTransform(false);
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                mapImg.style.cursor = 'grab';
+            }
+        });
+
+        // Drag handling (Touch for Mobile Devices)
+        mapImg.addEventListener('touchstart', function(e) {
+            if (isFullView) return;
+            isDragging = true;
+            mapImg.style.transition = 'none';
+
+            const touch = e.touches[0];
+            startX = touch.clientX - panX;
+            startY = touch.clientY - panY;
+        });
+
+        window.addEventListener('touchmove', function(e) {
+            if (!isDragging || isFullView) return;
+            
+            const touch = e.touches[0];
+            panX = touch.clientX - startX;
+            panY = touch.clientY - startY;
+
+            const maxPanX = mapImg.offsetWidth * 0.8;
+            const maxPanY = mapImg.offsetHeight * 0.8;
+
+            panX = Math.min(Math.max(panX, -maxPanX), maxPanX);
+            panY = Math.min(Math.max(panY, -maxPanY), maxPanY);
+
+            applyTransform(false);
+            e.preventDefault(); // prevent scrolling while dragging map
+        }, { passive: false });
+
+        window.addEventListener('touchend', function() {
+            isDragging = false;
+        });
+
+        // Wheel Zoom handling
+        mapWrapper.addEventListener('wheel', function(e) {
+            if (isFullView) return;
+            e.preventDefault();
+            
+            const zoomSpeed = 0.05;
+            if (e.deltaY < 0) {
+                zoom = Math.min(zoom + zoomSpeed, 3.0);
+            } else {
+                zoom = Math.max(zoom - zoomSpeed, 0.75);
+            }
+            applyTransform(true);
+        }, { passive: false });
+    });
+    </script>
 
 </body>
 

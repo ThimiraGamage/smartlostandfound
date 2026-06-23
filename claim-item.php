@@ -6,7 +6,7 @@ include 'includes/connection.php';
 
 /* GET ITEM ID FROM URL */
 
-$item_id = $_GET['item_id'] ?? null;
+$item_id = (int)($_GET['item_id'] ?? 0);
 
 if(!$item_id)
 {
@@ -17,17 +17,26 @@ if(!$item_id)
 
 $sql = "SELECT items.*, 
         users.full_name, 
-        users.email,
-        users.phone_number
+        users.email
 
         FROM items
 
         JOIN users 
         ON items.user_id = users.user_id
 
-        WHERE items.item_id = '$item_id'";
+        WHERE items.item_id = ?";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+
+if(!$stmt)
+{
+    die("Database Error: " . $conn->error);
+}
+
+$stmt->bind_param("i", $item_id);
+$stmt->execute();
+
+$result = $stmt->get_result();
 
 if(!$result || $result->num_rows == 0)
 {
@@ -42,15 +51,12 @@ $row = $result->fetch_assoc();
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Claim Item</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/claim-item.css">
-
 </head>
 
 <body>
@@ -142,19 +148,19 @@ $row = $result->fetch_assoc();
 
             <p>
 
-                <strong>Phone:</strong>
+                <strong>Email:</strong>
 
-                <?php echo $row['phone_number']; ?>
+                <?php echo $row['email']; ?>
 
             </p>
 
             <a 
-                href="https://wa.me/<?php echo $row['phone_number']; ?>?text=Hello%20I%20would%20like%20to%20claim%20the%20item%20<?php echo urlencode($row['item_name']); ?>" 
+                href="mailto:<?php echo $row['email']; ?>?subject=Regarding%20the%20item%20<?php echo urlencode($row['item_name']); ?>" 
                 target="_blank"
                 class="whatsapp-btn"
                 >
 
-                    Contact on WhatsApp
+                    Contact via Email
 
             </a>
         </div>
