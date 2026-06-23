@@ -170,7 +170,7 @@ if(isset($_POST['login']))
                     <input type="checkbox" id="remember">
 
                     <label for="remember">
-                        Remember Me
+                        Remember Mee 
                     </label>
 
                 </div>
