@@ -7,7 +7,7 @@ include 'includes/google-config.php';
 
 $message = "";
 
-if (isset($_POST['register'])) {
+if (isset($_POST['register']))
 
     $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');

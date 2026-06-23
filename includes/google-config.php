@@ -1,3 +1,5 @@
+require_once 'env.php';
+loadEnv(__DIR__ . '/.env');
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -8,28 +10,30 @@ require_once __DIR__ . '/env-loader.php';
 
 // Google Client Configuration
 // Use environment variables for sensitive credentials
-define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: 'YOUR_CLIENT_ID_HERE');
-define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET') ?: 'YOUR_CLIENT_SECRET_HERE');
-define('GOOGLE_REDIRECT_URI', getenv('GOOGLE_REDIRECT_URI') ?: 'http://localhost/smartlostandfound/login.php');
+$GOOGLE_CLIENT_ID = $_ENV['GOOGLE_CLIENT_ID'];
+$GOOGLE_CLIENT_SECRET = $_ENV['GOOGLE_CLIENT_SECRET'];
+$GOOGLE_REDIRECT_URI = $_ENV['GOOGLE_REDIRECT_URI'];
 
 /**
  * Generate Google Login URL
  */
 function getGoogleLoginUrl() {
+
+    global $GOOGLE_CLIENT_ID, $GOOGLE_REDIRECT_URI;
+
     $params = [
         'response_type' => 'code',
-        'client_id'     => GOOGLE_CLIENT_ID,
-        'redirect_uri'  => GOOGLE_REDIRECT_URI,
+        'client_id'     => $GOOGLE_CLIENT_ID,
+        'redirect_uri'  => $GOOGLE_REDIRECT_URI,
         'scope'         => 'openid email profile',
-        'state'         => bin2hex(random_bytes(16)), // Secures against CSRF
+        'state'         => bin2hex(random_bytes(16)),
     ];
+
     $_SESSION['oauth_state'] = $params['state'];
+
     return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
 }
 
-/**
- * Exchange Authorization Code for Access Token & Retrieve User Info
- */
 function handleGoogleCallback($code) {
     $token_url = 'https://oauth2.googleapis.com/token';
     
