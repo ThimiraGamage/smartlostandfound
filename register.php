@@ -7,7 +7,7 @@ include 'includes/google-config.php';
 
 $message = "";
 
-if (isset($_POST['register'])) 
+if(isset($_POST['register'])){
 
     $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -82,11 +82,12 @@ if (isset($_POST['register']))
             (
                 full_name,
                 email,
+                phone_number,
                 password
             )
             VALUES
             (
-                ?, ?, ?
+                ?, ?, ?, ?
             )";
 
             $stmt = mysqli_prepare($conn, $sql);
@@ -96,9 +97,10 @@ if (isset($_POST['register']))
             }else{
                 $stmt->bind_param
                 (
-                    "sss", 
+                    "ssss", 
                     $full_name, 
                     $email,
+                    $phone_number,
                     $hashed_password
                 );
 
@@ -107,22 +109,21 @@ if (isset($_POST['register']))
                     // Get the newly created user ID
                     $user_id = $conn->insert_id;
 
-                    // Start session and set user data
-                    session_start();
+                    // Set user data in session
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['full_name'] = $full_name;
                     $_SESSION['email'] = $email;
+                    $_SESSION['phone_number'] = $phone_number;
 
                     header("Location: dashboard.php");
                     exit();
 
                 }else{
-
                     $message = "Error : " . $conn->error;
-
                 }
 
-            mysqli_stmt_close($stmt);
+                mysqli_stmt_close($stmt);
+            }
         }
     }
 }
@@ -139,6 +140,8 @@ if (isset($_POST['register']))
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/register.css">
+    <!-- International Telephone Input Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 </head>
 
 <body>
@@ -197,69 +200,14 @@ if (isset($_POST['register']))
 
                 <label>Phone Number</label>
 
-                <div style="display:flex; gap:10px;">
-
-                    <select
-                        name="country_code"
-                        required
-                        style="width:120px;"
-                    >
-                        <option value="">Select Code</option>
-                        <option value="1">+1 (USA/Canada)</option>
-                        <option value="44">+44 (UK)</option>
-                        <option value="91">+91 (India)</option>
-                        <option value="94">+94 (Sri Lanka)</option>
-                        <option value="61">+61 (Australia)</option>
-                        <option value="86">+86 (China)</option>
-                        <option value="81">+81 (Japan)</option>
-                        <option value="82">+82 (South Korea)</option>
-                        <option value="60">+60 (Malaysia)</option>
-                        <option value="65">+65 (Singapore)</option>
-                        <option value="66">+66 (Thailand)</option>
-                        <option value="84">+84 (Vietnam)</option>
-                        <option value="63">+63 (Philippines)</option>
-                        <option value="62">+62 (Indonesia)</option>
-                        <option value="880">+880 (Bangladesh)</option>
-                        <option value="977">+977 (Nepal)</option>
-                        <option value="92">+92 (Pakistan)</option>
-                        <option value="30">+30 (Greece)</option>
-                        <option value="33">+33 (France)</option>
-                        <option value="49">+49 (Germany)</option>
-                        <option value="39">+39 (Italy)</option>
-                        <option value="34">+34 (Spain)</option>
-                        <option value="31">+31 (Netherlands)</option>
-                        <option value="32">+32 (Belgium)</option>
-                        <option value="46">+46 (Sweden)</option>
-                        <option value="47">+47 (Norway)</option>
-                        <option value="41">+41 (Switzerland)</option>
-                        <option value="43">+43 (Austria)</option>
-                        <option value="45">+45 (Denmark)</option>
-                        <option value="48">+48 (Poland)</option>
-                        <option value="20">+20 (Egypt)</option>
-                        <option value="27">+27 (South Africa)</option>
-                        <option value="234">+234 (Nigeria)</option>
-                        <option value="254">+254 (Kenya)</option>
-                        <option value="256">+256 (Uganda)</option>
-                        <option value="966">+966 (Saudi Arabia)</option>
-                        <option value="971">+971 (UAE)</option>
-                        <option value="972">+972 (Israel)</option>
-                        <option value="90">+90 (Turkey)</option>
-                        <option value="55">+55 (Brazil)</option>
-                        <option value="54">+54 (Argentina)</option>
-                        <option value="56">+56 (Chile)</option>
-                        <option value="57">+57 (Colombia)</option>
-                        <option value="52">+52 (Mexico)</option>
-                        <option value="1-876">+1-876 (Jamaica)</option>
-                    </select>
-
-                    <input
-                        type="text"
-                        name="phone_number"
-                        placeholder="771234567"
-                        required
-                    >
-
-                </div>
+                <input
+                    id="phone_number_input"
+                    type="tel"
+                    name="phone_number"
+                    placeholder="Enter phone number"
+                    required
+                >
+                <input type="hidden" name="country_code" id="country_code">
 
             </div>
 
@@ -333,5 +281,49 @@ if (isset($_POST['register']))
         </div>
     </div>
 </section>
+
+<!-- International Telephone Input Library JS -->
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
+
+<script>
+    // Initialize intl-tel-input
+    const phoneInputField = document.querySelector("#phone_number_input");
+    const phoneInput = window.intlTelInput(phoneInputField, {
+        initialCountry: "auto",
+        geoIpLookup: function(callback) {
+            fetch("https://ipapi.co/json")
+                .then(res => res.json())
+                .then(data => callback(data.country_code))
+                .catch(() => callback("us"));
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js",
+        preferredCountries: ["us", "gb", "in", "lk", "au", "ca"]
+    });
+
+    // Update hidden country code field when user changes country
+    phoneInputField.addEventListener("countrychange", function() {
+        const selectedCountryData = phoneInput.getSelectedCountryData();
+        document.getElementById("country_code").value = selectedCountryData.dialCode;
+    });
+
+    // Set initial country code on page load
+    window.addEventListener('load', function() {
+        const selectedCountryData = phoneInput.getSelectedCountryData();
+        document.getElementById("country_code").value = selectedCountryData.dialCode;
+    });
+
+    // Validate phone number on form submission
+    document.querySelector("form").addEventListener("submit", function(e) {
+        const isValid = phoneInput.isValidNumber();
+        if (!isValid) {
+            e.preventDefault();
+            phoneInputField.classList.add("error");
+            alert("Please enter a valid phone number");
+        } else {
+            phoneInputField.classList.remove("error");
+        }
+    });
+</script>
+
 </body>
 </html>

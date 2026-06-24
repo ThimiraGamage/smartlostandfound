@@ -1,9 +1,7 @@
 <?php
 session_start();
 
-$is_logged_in = isset($_SESSION['user_id']);
-
-if (!$is_logged_in) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
@@ -12,62 +10,87 @@ include 'includes/connection.php';
 $message = "";
 $messageType = "";
 
-if (isset($_POST['submit_item'])) {
-    $item_name = $_POST['item_name'] ?? '';
-    $category = $_POST['category'] ?? '';
-    $location = $_POST['location'] ?? '';
-    $item_date = $_POST['item_date'] ?? '';
-    $description = $_POST['description'] ?? '';
-    $item_type = $_POST['item_type'] ?? 'Lost';
-    
-    $user_id = $_SESSION['user_id'];
+/* CATEGORY → MODELS */
+$models = array(
+    "Phone" => array("iPhone 15", "iPhone 14", "Samsung S24", "OnePlus 12"),
+    "Laptop" => array("MacBook Air M2", "Dell XPS 13", "HP Pavilion", "Lenovo ThinkPad"),
+    "Bag" => array("Backpack", "School Bag", "Travel Bag"),
+    "Calculator" => array("Casio FX-991", "Sharp EL-506"),
+    "Wallet" => array("Leather Wallet", "Card Holder"),
+    "Keys" => array("House Keys", "Car Keys")
+);
 
-    if (empty($item_name) || empty($category) || empty($location) || empty($item_date) || empty($description)) {
-        $message = "All fields are required!";
+if (isset($_POST['submit_item'])) {
+
+    $user_id     = $_SESSION['user_id'];
+    $item_name   = $_POST['item_name'] ?? '';
+    $category    = $_POST['category'] ?? '';
+    $model       = $_POST['model'] ?? '';
+    $model_other = $_POST['model_other'] ?? '';
+    $location    = $_POST['location'] ?? '';
+    $item_date   = $_POST['item_date'] ?? '';
+    $description = $_POST['description'] ?? '';
+    $item_type   = $_POST['item_type'] ?? 'Lost';
+    $color = $_POST['color'] ?? '';
+    /* FINAL MODEL */
+    if ($model === "Other") {
+        $final_model = $model_other;
+    } else {
+        $final_model = $model;
+    }
+
+    if ($item_name == "" || $category == "" || $location == "" || $item_date == "" || $color == "") {
+        $message = "Required fields missing!";
         $messageType = "error";
     } else {
-        // Handle file upload
-        $image_path = null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $allowed = ['jpg', 'jpeg', 'png', 'gif'];
-            $filename = $_FILES['image']['name'];
-            $filetype = pathinfo($filename, PATHINFO_EXTENSION);
 
-            if (in_array($filetype, $allowed)) {
-                $upload_dir = 'uploads/';
-                if (!is_dir($upload_dir)) {
+        /* IMAGE UPLOAD */
+        $image_path = "";
+
+        if (!empty($_FILES['image']['name'])) {
+
+            $allowed = array('jpg', 'jpeg', 'png', 'gif');
+            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+
+            if (in_array($ext, $allowed)) {
+
+                $upload_dir = "uploads/";
+
+                if (!file_exists($upload_dir)) {
                     mkdir($upload_dir, 0755, true);
                 }
-                
-                $new_filename = uniqid() . '.' . $filetype;
-                $upload_path = $upload_dir . $new_filename;
 
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
-                    $image_path = $upload_path;
+                $new_name = uniqid() . "." . $ext;
+                $target = $upload_dir . $new_name;
+
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
+                    $image_path = $target;
                 }
-            }
+            }   
         }
 
-        // Insert into database
-        $sql = "INSERT INTO items (user_id, item_name, category, location, item_date, description, item_type, image) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isssssss", $user_id, $item_name, $category, $location, $item_date, $description, $item_type, $image_path);
+        /* STORE MODEL INSIDE DESCRIPTION (your DB has no model column) */
+        $final_description = "Model: " . $final_model .
+                     " | Color: " . $color .
+                     " | " . $description;
 
-        if ($stmt->execute()) {
+        /* PROCEDURAL INSERT */
+        $sql = "INSERT INTO items 
+        (user_id, item_name, category, location, item_date, description, item_type, image)
+        VALUES 
+        ('$user_id', '$item_name', '$category', '$location', '$item_date', '$final_description', '$item_type', '$image_path')";
+
+        $result = mysqli_query($conn, $sql);
+
+        if ($result) {
             $message = "Item reported successfully!";
             $messageType = "success";
         } else {
-            $message = "Error: " . $conn->error;
+            $message = "Error: " . mysqli_error($conn);
             $messageType = "error";
         }
-
-        $stmt->close();
     }
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -84,94 +107,156 @@ $conn->close();
 
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
-    <!-- FORM SECTION -->
+<section class="upload-section">
+<div class="upload-container">
 
-    <section class="upload-section">
+<h1>Report Lost / Found Item</h1>
 
-        <div class="upload-container">
-           
-            <h1>Report Lost / Found Item</h1>
+<p>Fill the details below to report your item.</p>
 
-            <p>Fill the details below to report your item.</p>
+<?php if ($message != "") { ?>
+    <div class="message <?php echo $messageType; ?>">
+        <?php echo $message; ?>
+    </div>
+<?php } ?>
 
-            <?php if ($message): ?>
-                <div class="message <?php echo $messageType; ?>">
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
-            <?php endif; ?>
+<form method="POST" enctype="multipart/form-data">
 
-            <form method="POST" enctype="multipart/form-data">
+    <!-- ITEM NAME -->
+    <div class="form-group">
+        <label>Item Name *</label>
+        <input type="text" name="item_name" required>
+    </div>
 
-                <!-- ITEM NAME -->
-                <div class="form-group">
-                    <label>Item Name *</label>
-                    <input type="text" name="item_name" placeholder="Enter item name" required>
-                </div>
+    <!-- CATEGORY -->
+    <div class="form-group">
+        <label>Category *</label>
+        <select name="category" id="category" onchange="loadModels()" required>
+            <option value="">Select Category</option>
 
-                <!-- CATEGORY -->
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select name="category" required>
-                        <option value="">Select Category</option>
-                        <option value="Laptop">Laptop</option>
-                        <option value="Bag">Bag</option>
-                        <option value="ID Card">ID Card</option>
-                        <option value="Calculator">Calculator</option>
-                        <option value="Phone">Phone</option>
-                        <option value="Wallet">Wallet</option>
-                        <option value="Keys">Keys</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+            <?php
+            foreach ($models as $cat => $list) {
+                echo "<option value='$cat'>$cat</option>";
+            }
+            ?>
 
-                <!-- LOCATION -->
-                <div class="form-group">
-                    <label>Location *</label>
-                    <input type="text" name="location" placeholder="Enter location where item was lost/found" required>
-                </div>
+        </select>
+    </div>
 
-                <!-- DATE -->
-                <div class="form-group">
-                    <label>Date *</label>
-                    <input type="date" name="item_date" required>
-                </div>
+    <!-- MODEL -->
+    <div class="form-group">
+        <label>Model *</label>
+        <select name="model" id="model" onchange="checkOther()" required>
+            <option value="">Select Model</option>
+        </select>
 
-                <!-- DESCRIPTION -->
-                <div class="form-group">
-                    <label>Description *</label>
-                    <textarea name="description" placeholder="Describe the item in detail" rows="4" required></textarea>
-                </div>
+        <input type="text" name="model_other" id="model_other"
+               placeholder="Enter model manually"
+               style="display:none; margin-top:10px;">
+    </div>
 
-                <!-- ITEM TYPE -->
-                <div class="form-group">
-                    <label>Item Type *</label>
-                    <select name="item_type" required>
-                        <option value="Lost">Lost Item</option>
-                        <option value="Found">Found Item</option>
-                    </select>
-                </div>
+    <!-- COLOR -->
+    <div class="form-group">
+        <label>Color *</label>
+        <select name="color" required>
+            <option value="">Select Color</option>
+            <option value="Black">Black</option>
+            <option value="White">White</option>
+            <option value="Blue">Blue</option>
+            <option value="Red">Red</option>
+            <option value="Green">Green</option>
+            <option value="Grey">Grey</option>
+            <option value="Brown">Brown</option>
+            <option value="Silver">Silver</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    <!-- LOCATION -->
+    <div class="form-group">
+        <label>Location *</label>
+        <input type="text" name="location" required>
+    </div>
 
-                <!-- IMAGE -->
-                <div class="form-group">
-                    <label>Upload Image</label>
-                    <input type="file" name="image" accept="image/*">
-                </div>
+    <!-- DATE -->
+    <div class="form-group">
+        <label>Date *</label>
+        <input type="date" name="item_date" required>
+    </div>
 
-                <!-- BUTTON -->
-                <button type="submit" name="submit_item" class="submit-btn">
+    <!-- DESCRIPTION -->
+    <div class="form-group">
+        <label>Description *</label>
+        <textarea name="description" required></textarea>
+    </div>
 
-                    Submit Report
+    <!-- ITEM TYPE -->
+    <div class="form-group">
+        <label>Item Type *</label>
+        <select name="item_type">
+            <option value="Lost">Lost</option>
+            <option value="Found">Found</option>
+        </select>
+    </div>
 
-                </button>
+    <!-- IMAGE -->
+    <div class="form-group">
+        <label>Upload Image</label>
+        <input type="file" name="image">
+    </div>
 
-            </form>
+    <!-- SUBMIT -->
+    <button type="submit" name="submit_item" class="submit-btn">
+        Submit Item
+    </button>
 
-        </div>
+</form>
 
-    </section>
+</div>
+</section>
+
+<script>
+
+var models = <?php echo json_encode($models); ?>;
+
+function loadModels() {
+
+    var category = document.getElementById("category").value;
+    var model = document.getElementById("model");
+
+    model.innerHTML = "<option value=''>Select Model</option>";
+
+    if (models[category]) {
+
+        for (var i = 0; i < models[category].length; i++) {
+            var opt = document.createElement("option");
+            opt.value = models[category][i];
+            opt.text = models[category][i];
+            model.appendChild(opt);
+        }
+
+        var other = document.createElement("option");
+        other.value = "Other";
+        other.text = "Other";
+        model.appendChild(other);
+    }
+}
+
+function checkOther() {
+
+    var model = document.getElementById("model").value;
+    var input = document.getElementById("model_other");
+
+    if (model === "Other") {
+        input.style.display = "block";
+    } else {
+        input.style.display = "none";
+        input.value = "";
+    }
+}
+
+</script>
 
 </body>
-
 </html>

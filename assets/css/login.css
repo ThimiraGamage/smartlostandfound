@@ -139,6 +139,51 @@ body{
 .login-btn:active {
     transform: scale(0.98);
 }
+.google-divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: #999;
+    font-size: 14px;
+}
+
+.google-divider::before,
+.google-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid #ddd;
+}
+
+.google-divider span {
+    margin: 0 15px;
+}
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.google-btn:hover {
+    background: #f7f7f7;
+    border-color: #999;
+}
 
 /* REGISTER LINK */
 
@@ -177,128 +222,8 @@ body{
             color: #721c24;
         }
 
-/* GOOGLE AUTHENTICATION */
-
-.google-divider {
-    display: flex;
-    align-items: center;
-    margin: 25px 0;
-    color: #999;
-    font-size: 14px;
-}
-
-.google-divider::before,
-.google-divider::after {
-    content: '';
-    flex: 1;
-    border-top: 1px solid #ddd;
-}
-
-.google-divider span {
-    margin: 0 15px;
-}
-
-.google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 12px;
-    background: #ffffff;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.google-btn img {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-}
-
-.google-btn:hover {
-    background: #f7f7f7;
-    border-color: #999;
-}
-
- .message
+        .info
         {
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
+            background-color: #d1ecf1;
+            color: #0c5460;
         }
-
-        .success
-        {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .error
-        {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .modal-content h2 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .modal-content p {
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .modal-content .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-    

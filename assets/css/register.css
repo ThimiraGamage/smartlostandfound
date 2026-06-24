@@ -92,17 +92,22 @@ body{
 
 /* BUTTON */
 
-.register-btn {
-    width: 100%;
-    padding: 15px;
-    background: #0d6efd;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease;
+.register-btn{
+    width:100%;
+
+    padding:15px;
+
+    background:#0d6efd;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    cursor:pointer;
 }
 
 .register-btn:hover {
@@ -176,4 +181,65 @@ body{
 .google-btn:hover {
     background: #f7f7f7;
     border-color: #999;
+}
+
+/* INTERNATIONAL TELEPHONE INPUT */
+
+.iti {
+    width: 100%;
+}
+
+#phone_number_input {
+    width: 100%;
+    padding: 15px;
+    padding-left: 55px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#phone_number_input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+}
+
+.iti__flag {
+    background-image: url('https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/img/flags.png');
+}
+
+.iti__dropdown {
+    border-radius: 8px;
+}
+
+.iti__country-list {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.iti__country:hover {
+    background-color: #e8f0fe;
+}
+
+.iti__selected-country:hover {
+    background-color: #f0f0f0;
+}
+
+#phone_number_input.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+@media only screen and (max-width: 600px) {
+    .register-container {
+        padding: 20px;
+    }
+    
+    .form-group input {
+        padding: 12px;
+    }
+    
+    #phone_number_input {
+        padding-left: 50px;
+    }
 }

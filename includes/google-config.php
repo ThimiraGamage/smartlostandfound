@@ -78,4 +78,3 @@ function handleGoogleCallback($code) {
 
     return json_decode($info_response, true);
 }
-?>
