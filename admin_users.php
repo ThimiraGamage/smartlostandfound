@@ -3,13 +3,13 @@
 include 'includes/connection.php';
 
 // Check if the connection is successful
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 // 2. Fetch all users from the database, ordered by newest first
 $sql = "SELECT * FROM users ORDER BY created_at DESC";
-$result = $conn->query($sql);
+$result = mysqli_query($conn, $sql);
 ?>
 
 <!DOCTYPE html>
@@ -69,8 +69,8 @@ $result = $conn->query($sql);
             <tbody>
                 <?php
                 // 3. Loop through the fetched database records and populate the table
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                if (mysqli_num_rows($result) > 0) {
+                    while($row = mysqli_fetch_assoc($result)) {
                         echo "<tr>";
                         echo "<td>" . $row['user_id'] . "</td>";
                         echo "<td>" . $row['full_name'] . "</td>";
@@ -84,7 +84,7 @@ $result = $conn->query($sql);
                 }
                 
                 // Close the database connection
-                $conn->close();
+                mysqli_close($conn);
                 ?>
             </tbody>
         </table>
