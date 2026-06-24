@@ -13,12 +13,68 @@ $messageType = "";
 
 /* CATEGORY → MODELS */
 $models = array(
-    "Phone" => array("iPhone 15", "iPhone 14", "Samsung S24", "OnePlus 12"),
-    "Laptop" => array("MacBook Air M2", "Dell XPS 13", "HP Pavilion", "Lenovo ThinkPad"),
-    "Bag" => array("Backpack", "School Bag", "Travel Bag"),
-    "Calculator" => array("Casio FX-991", "Sharp EL-506"),
-    "Wallet" => array("Leather Wallet", "Card Holder"),
-    "Keys" => array("House Keys", "Car Keys")
+
+    "Phone" => array(
+        "iPhone 15", "iPhone 15 Pro", "iPhone 14", "iPhone 13",
+        "Samsung Galaxy S24", "Samsung Galaxy S23", "Samsung A54",
+        "OnePlus 12", "OnePlus 11", "Xiaomi 14", "Google Pixel 8"
+    ),
+
+    "Laptop" => array(
+        "MacBook Air M2", "MacBook Pro M3",
+        "Dell XPS 13", "Dell Inspiron 15",
+        "HP Pavilion", "HP Spectre x360",
+        "Lenovo ThinkPad X1", "Lenovo IdeaPad",
+        "ASUS ZenBook", "Acer Aspire 5"
+    ),
+
+    "Bag" => array(
+        "Backpack", "School Bag", "Travel Bag",
+        "Laptop Bag", "Handbag", "Messenger Bag",
+        "Trolley Bag", "Sports Bag"
+    ),
+
+    "Calculator" => array(
+        "Casio FX-991EX", "Casio FX-991ES Plus",
+        "Sharp EL-506", "Texas Instruments TI-84",
+        "Citizen SR-260"
+    ),
+
+    "Wallet" => array(
+        "Leather Wallet", "Card Holder",
+        "Coin Wallet", "Travel Wallet",
+        "RFID Wallet"
+    ),
+
+    "Keys" => array(
+        "House Keys", "Car Keys",
+        "Motorbike Keys", "Office Keys",
+        "Locker Keys"
+    ),
+
+    // NEW CATEGORIES ADDED
+
+    "Watch" => array(
+        "Apple Watch Series 9", "Samsung Galaxy Watch 6",
+        "Casio Digital Watch", "Fossil Smartwatch",
+        "Rolex", "Seiko"
+    ),
+
+    "ID Card" => array(
+        "Student ID", "National ID", "Driving License",
+        "Employee ID", "Library Card"
+    ),
+
+    "Headphones" => array(
+        "AirPods Pro", "Sony WH-1000XM5",
+        "Samsung Buds2", "JBL Tune 510",
+        "Boat Rockerz"
+    ),
+
+    "Books" => array(
+        "Textbook", "Notebook", "Diary",
+        "Novel", "Exam Paper Folder"
+    )
 );
 
 if (isset($_POST['submit_item'])) {
@@ -76,17 +132,32 @@ if (isset($_POST['submit_item'])) {
                      " | " . $description;
 
         /* PROCEDURAL INSERT */
-        $sql = "INSERT INTO items 
-        (user_id, item_name, category, location, item_date, description, item_type, image)
-        VALUES 
-        ('$user_id', '$item_name', '$category', '$location', '$item_date', '$final_description', '$item_type', '$image_path')";
-
+       $sql = "INSERT INTO items
+            (user_id, item_name, category, location, item_date, description, item_type, image, color, model)
+            VALUES
+            (
+            '$user_id',
+            '$item_name',
+            '$category',
+            '$location',
+            '$item_date',
+            '$final_description',
+            '$item_type',
+            '$image_path',
+            '$color',
+            '$final_model'
+            )";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
-            $message = "Item reported successfully!";
-            $messageType = "success";
+
+            $item_id = mysqli_insert_id($conn);
+
+            header("Location: related-items.php?item_id=$item_id");
+            exit();
+
         } else {
+
             $message = "Error: " . mysqli_error($conn);
             $messageType = "error";
         }
@@ -99,14 +170,11 @@ if (isset($_POST['submit_item'])) {
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Report Item</title>
-
-    <link rel="stylesheet" href="assets/css/upload-item.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-
+    <link rel="stylesheet" href="assets/css/upload-item.css">
 </head>
 
 <body>

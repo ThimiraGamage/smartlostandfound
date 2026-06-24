@@ -18,32 +18,29 @@ if(!$item_id)
 $sql = "SELECT items.*, 
         users.full_name, 
         users.email
-
         FROM items
-
         JOIN users 
         ON items.user_id = users.user_id
-
         WHERE items.item_id = ?";
 
-$stmt = $conn->prepare($sql);
+$stmt = mysqli_prepare($conn, $sql);
 
 if(!$stmt)
 {
-    die("Database Error: " . $conn->error);
+    die("Database Error: " . mysqli_error($conn));
 }
 
-$stmt->bind_param("i", $item_id);
-$stmt->execute();
+mysqli_stmt_bind_param($stmt, "i", $item_id);
+mysqli_stmt_execute($stmt);
 
-$result = $stmt->get_result();
+$result = mysqli_stmt_get_result($stmt);
 
-if(!$result || $result->num_rows == 0)
+if(!$result || mysqli_num_rows($result) == 0)
 {
     die("Item Not Found");
 }
 
-$row = $result->fetch_assoc();
+$row = mysqli_fetch_assoc($result);
 
 ?>
 
@@ -70,8 +67,6 @@ $row = $result->fetch_assoc();
 
     <div class="claim-container">
 
-        <!-- ITEM DETAILS -->
-
         <div class="item-details">
 
             <img 
@@ -81,77 +76,43 @@ $row = $result->fetch_assoc();
             >
 
             <h2>
-
                 <?php echo $row['item_name']; ?>
-
             </h2>
 
             <p>
-
                 <strong>Category:</strong>
-
                 <?php echo $row['category']; ?>
-
             </p>
 
             <p>
-
                 <strong>Location:</strong>
-
                 <?php echo $row['location']; ?>
-
             </p>
 
             <p>
-
                 <strong>Date:</strong>
-
                 <?php echo $row['created_at']; ?>
-
             </p>
 
             <p>
-
                 <strong>Description:</strong>
-
                 <?php echo $row['description']; ?>
-
             </p>
 
         </div>
 
-        <!-- FINDER DETAILS -->
-
         <div class="finder-details">
 
-            <h3>
-
-                Finder Information
-
-            </h3>
+            <h3>Finder Information</h3>
 
             <p>
-
                 <strong>Name:</strong>
-
                 <?php echo $row['full_name']; ?>
-
             </p>
 
             <p>
-
                 <strong>Email:</strong>
-
                 <?php echo $row['email']; ?>
-
-            </p>
-
-            <p>
-
-                <strong>Email:</strong>
-
-                <?php echo $row['email']; ?>
-
             </p>
 
             <a 
@@ -159,15 +120,9 @@ $row = $result->fetch_assoc();
                 target="_blank"
                 class="whatsapp-btn"
                 >
-
                     Contact via Email
-
             </a>
         </div>
-
-        
-
-        
 
     </div>
 

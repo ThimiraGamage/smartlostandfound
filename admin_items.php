@@ -2,13 +2,12 @@
 // 1. Database Connection
 include 'includes/connection.php';
 
-
 $sql = "SELECT items.*, users.full_name 
         FROM items 
         LEFT JOIN users ON items.user_id = users.user_id 
         ORDER BY items.created_at DESC";
         
-$result = $conn->query($sql);
+$result = mysqli_query($conn, $sql);
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +43,7 @@ $result = $conn->query($sql);
             <span class="material-symbols-outlined">inventory_2</span>
             Items
         </a>
-        <a href="#" class="nav-item">
+        <a href="admin_claims.php" class="nav-item">
             <span class="material-symbols-outlined">assignment</span>
             Claims
         </a>
@@ -71,8 +70,8 @@ $result = $conn->query($sql);
             <tbody>
                 <?php
                 // 3. Loop through the fetched database records
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                if (mysqli_num_rows($result) > 0) {
+                    while($row = mysqli_fetch_assoc($result)) {
                         echo "<tr>";
                         echo "<td>" . $row['item_id'] . "</td>";
                         echo "<td>" . $row['item_name'] . "</td>";
@@ -96,7 +95,7 @@ $result = $conn->query($sql);
                 }
                 
                 // Close connection
-                $conn->close();
+                mysqli_close($conn);
                 ?>
             </tbody>
         </table>
